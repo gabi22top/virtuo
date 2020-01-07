@@ -32,7 +32,7 @@ const rentals = [{
     'firstName': 'Roman',
     'lastName': 'Frayssinet'
   },
-  'carId': 'f944a3ff-591b-4d5b-9b67-c7e08cba9791',
+  'carId': 'a9c1b91b-5e3d-4cec-a3cb-ef7eebb4892e',
   'pickupDate': '2020-01-02',
   'returnDate': '2020-01-02',
   'distance': 100,
@@ -73,6 +73,7 @@ const rentals = [{
   'carId': '4afcc3a2-bbf4-44e8-b739-0179a6cd8b7d',
   'pickupDate': '2019-12-01',
   'returnDate': '2019-12-15',
+  'distance': 400,
   'options': {
     'deductibleReduction': true
   },
@@ -160,3 +161,24 @@ const actors = [{
 console.log(cars);
 console.log(rentals);
 console.log(actors);
+
+function fetchPrice(id2) {
+  var test = (cars).find(element => element.id==id2);
+  return [test.pricePerDay,test.pricePerKm]
+}
+
+function dayDiff(d1, d2)
+{
+  d1 = d1.getTime() / 86400000;
+  d2 = d2.getTime() / 86400000;
+  return new Number(d2 - d1).toFixed(0);
+}
+
+rentals.forEach(element => {
+  var returnDate = new Date(element.returnDate);
+  var pickup  = new Date(element.pickupDate)
+  var duree = parseInt(dayDiff(pickup,returnDate)) + 1;
+  
+  element.price = duree * fetchPrice(element.carId)[0] + element.distance * fetchPrice(element.carId)[1];
+  console.log(element.price)
+});
