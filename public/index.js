@@ -181,7 +181,7 @@ function computePrice() {
     var pickup = new Date(element.pickupDate)
     var duration = parseInt(dayDiff(pickup, returnDate));
     if (duration == 0)
-    duration += 1
+      duration += 1
     element.price = duration * fetchPrice(element.carId)[0] + element.distance * fetchPrice(element.carId)[1];
   });
 }
@@ -198,7 +198,7 @@ https://stackoverflow.com/questions/11284663/console-log-shows-the-changed-value
 Console.log() is passed a reference to the object, 
 so the value in the Console changes as the object changes. To avoid that we must do:
 */
-console.log("Step 1",JSON.parse(JSON.stringify(rentals)))
+console.log("Step 1", JSON.parse(JSON.stringify(rentals)))
 
 
 // Step 2 - Drive more, pay less
@@ -207,15 +207,34 @@ function applyDiscountPrice() {
     var returnDate = new Date(element.returnDate);
     var pickup = new Date(element.pickupDate)
     var duration = parseInt(dayDiff(pickup, returnDate)) + 1;
-    if (duration < 1)
-    element.price *= 1
+    if (duration <= 1)
+      element.price *= 1
     else if (duration > 1 && duration <= 4)
-    element.price *= 0.9
+      element.price *= 0.9
     else if (duration > 4 && duration <= 10)
-    element.price *= 0.7
+      element.price *= 0.7
     else
-    element.price *= 0.5
+      element.price *= 0.5
   });
 }
 applyDiscountPrice()
-console.log("Step 2", rentals)
+console.log("Step 2", JSON.parse(JSON.stringify(rentals)))
+
+// Step 3 - Give me all your money
+
+function payVirtuo() {
+  rentals.forEach(element => {
+    var returnDate = new Date(element.returnDate);
+    var pickup = new Date(element.pickupDate)
+    var duration = parseInt(dayDiff(pickup, returnDate));
+    if (duration == 0)
+      duration += 1
+    element.commission = element.price * 0.3
+    element.insurance = element.commission / 2
+    element.treasury = duration
+    element.virtuo = element.commission - element.insurance - element.treasury
+  });
+}
+
+payVirtuo()
+console.log("Step 3", JSON.parse(JSON.stringify(rentals)))
