@@ -162,8 +162,7 @@ console.log(cars);
 console.log(rentals);
 console.log(actors);
 
-// Step 1 - Euro-Kilometers
-
+//#region Step 1 - Euro-Kilometers
 function fetchPrice(id2) {
   var test = (cars).find(element => element.id == id2);
   return [test.pricePerDay, test.pricePerKm]
@@ -199,9 +198,9 @@ Console.log() is passed a reference to the object,
 so the value in the Console changes as the object changes. To avoid that we must do:
 */
 console.log("Step 1", JSON.parse(JSON.stringify(rentals)))
+//#endregion
 
-
-// Step 2 - Drive more, pay less
+//#region Step 2 - Drive more, pay less
 function applyDiscountPrice() {
   rentals.forEach(element => {
     var returnDate = new Date(element.returnDate);
@@ -219,9 +218,9 @@ function applyDiscountPrice() {
 }
 applyDiscountPrice()
 console.log("Step 2", JSON.parse(JSON.stringify(rentals)))
+//#endregion
 
-// Step 3 - Give me all your money
-
+//#region Step 3 - Give me all your money
 function payVirtuo() {
   rentals.forEach(element => {
     var returnDate = new Date(element.returnDate);
@@ -235,6 +234,24 @@ function payVirtuo() {
     element.virtuo = element.commission - element.insurance - element.treasury
   });
 }
-
 payVirtuo()
 console.log("Step 3", JSON.parse(JSON.stringify(rentals)))
+//#endregion
+
+//#region Step 4 - The famous deductible
+function applyDeductible() {
+  rentals.forEach(element => {
+    if (element.options.deductibleReduction) {
+      var returnDate = new Date(element.returnDate);
+      var pickup = new Date(element.pickupDate)
+      var duration = parseInt(dayDiff(pickup, returnDate));
+      if (duration == 0)
+        duration += 1
+      element.price += 4 *duration
+      element.virtuo += 4*duration
+    }
+  });
+}
+applyDeductible()
+console.log("Step 4", JSON.parse(JSON.stringify(rentals)))
+//#endregion
