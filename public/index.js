@@ -164,8 +164,8 @@ console.log(actors);
 
 //#region Step 1 - Euro-Kilometers
 function fetchPrice(id2) {
-  var test = (cars).find(element => element.id == id2);
-  return [test.pricePerDay, test.pricePerKm]
+  var priceCar = (cars).find(element => element.id == id2);
+  return [priceCar.pricePerDay, priceCar.pricePerKm]
 }
 
 function dayDiff(d1, d2) {
@@ -247,11 +247,44 @@ function applyDeductible() {
       var duration = parseInt(dayDiff(pickup, returnDate));
       if (duration == 0)
         duration += 1
-      element.price += 4 *duration
-      element.virtuo += 4*duration
+      element.price += 4 * duration
+      element.virtuo += 4 * duration
     }
   });
 }
 applyDeductible()
 console.log("Step 4", JSON.parse(JSON.stringify(rentals)))
+//#endregion
+
+//#region Step 5 - Pay the actors
+function fetchPriceByRentail(id) {
+  var rental = rentals.find(element => element.id == id)
+  var returnDate = new Date(rental.returnDate);
+  var pickup = new Date(rental.pickupDate)
+  var duration = parseInt(dayDiff(pickup, returnDate));
+  if (rental.options.deductibleReduction)
+    return [rental.price, (rental.price - 4 * duration - rental.commission), rental.insurance, rental.treasury, rental.virtuo]
+  else
+    return [rental.price, (rental.price - rental.commission), rental.insurance, rental.treasury, rental.virtuo]
+}
+
+function payActors() {
+  actors.forEach(element => {
+    var finalPrice = fetchPriceByRentail(element.rentalId)
+    element.payment.forEach(actor => {
+      if (actor.who == 'driver')
+        actor.amount = finalPrice[0]
+      else if (actor.who == 'partner')
+        actor.amount = finalPrice[1]
+      else if (actor.who == 'insurance')
+        actor.amount = finalPrice[2]
+      else if (actor.who == 'treasury')
+        actor.amount = finalPrice[3]
+      else
+        actor.amount = finalPrice[4]
+    });
+  });
+}
+payActors()
+console.log("Step 5", JSON.parse(JSON.stringify(actors)))
 //#endregion
