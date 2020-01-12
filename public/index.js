@@ -73,7 +73,7 @@ const rentals = [{
   'carId': '4afcc3a2-bbf4-44e8-b739-0179a6cd8b7d',
   'pickupDate': '2019-12-01',
   'returnDate': '2019-12-15',
-  'distance': 400,
+  'distance': 1000,
   'options': {
     'deductibleReduction': true
   },
@@ -162,23 +162,60 @@ console.log(cars);
 console.log(rentals);
 console.log(actors);
 
+// Step 1 - Euro-Kilometers
+
 function fetchPrice(id2) {
-  var test = (cars).find(element => element.id==id2);
-  return [test.pricePerDay,test.pricePerKm]
+  var test = (cars).find(element => element.id == id2);
+  return [test.pricePerDay, test.pricePerKm]
 }
 
-function dayDiff(d1, d2)
-{
+function dayDiff(d1, d2) {
   d1 = d1.getTime() / 86400000;
   d2 = d2.getTime() / 86400000;
   return new Number(d2 - d1).toFixed(0);
 }
 
-rentals.forEach(element => {
-  var returnDate = new Date(element.returnDate);
-  var pickup  = new Date(element.pickupDate)
-  var duree = parseInt(dayDiff(pickup,returnDate)) + 1;
-  
-  element.price = duree * fetchPrice(element.carId)[0] + element.distance * fetchPrice(element.carId)[1];
-  console.log(element.price)
-});
+function computePrice() {
+  rentals.forEach(element => {
+    var returnDate = new Date(element.returnDate);
+    var pickup = new Date(element.pickupDate)
+    var duration = parseInt(dayDiff(pickup, returnDate));
+    if (duration == 0)
+    duration += 1
+    element.price = duration * fetchPrice(element.carId)[0] + element.distance * fetchPrice(element.carId)[1];
+  });
+}
+
+computePrice();
+/*
+Very interesting javascript behavior 
+console.log() shows the changed value of a variable before the value actually changes
+The behavior described by the OP is part of a bug that was first reported in March 2010,
+patched for Webkit in August 2012, but as of this writing is not yet integrated into Google Chrome. 
+The behavior hinges upon whether or not the console debug window is open or closed at the time the object
+literal is passed to console.log().
+https://stackoverflow.com/questions/11284663/console-log-shows-the-changed-value-of-a-variable-before-the-value-actually-ch
+Console.log() is passed a reference to the object, 
+so the value in the Console changes as the object changes. To avoid that we must do:
+*/
+console.log("Step 1",JSON.parse(JSON.stringify(rentals)))
+
+
+// Step 2 - Drive more, pay less
+function applyDiscountPrice() {
+  rentals.forEach(element => {
+    var returnDate = new Date(element.returnDate);
+    var pickup = new Date(element.pickupDate)
+    var duration = parseInt(dayDiff(pickup, returnDate)) + 1;
+    if (duration < 1)
+    element.price *= 1
+    else if (duration > 1 && duration <= 4)
+    element.price *= 0.9
+    else if (duration > 4 && duration <= 10)
+    element.price *= 0.7
+    else
+    element.price *= 0.5
+  });
+}
+applyDiscountPrice()
+console.log("Step 2", rentals)
